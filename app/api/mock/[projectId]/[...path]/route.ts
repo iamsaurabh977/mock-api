@@ -22,7 +22,7 @@ async function handleMockRequest(
     const method = request.method;
     const path = '/' + (params.path?.join('/') || '');
 
-    const endpoint = dbHelpers.getEndpointByPath(params.projectId, method, path) as DbEndpoint | undefined;
+    const endpoint = dbHelpers.getEndpointByPath(params.projectId, method, path);
 
     if (!endpoint) {
       return NextResponse.json(

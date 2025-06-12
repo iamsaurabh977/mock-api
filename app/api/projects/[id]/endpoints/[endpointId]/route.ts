@@ -41,7 +41,7 @@ export async function PUT(
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 
     // Check if another endpoint with same method and path exists (excluding current one)
-    const existingEndpoint = dbHelpers.getEndpointByPath(params.id, method, normalizedPath) as { id: string } | undefined;
+    const existingEndpoint = dbHelpers.getEndpointByPath(params.id, method, normalizedPath);
 
     if (existingEndpoint && existingEndpoint.id !== params.endpointId) {
       return NextResponse.json(
@@ -65,7 +65,7 @@ export async function PUT(
       );
     }
 
-    const endpoint = dbHelpers.getEndpoint(params.endpointId) as DbEndpoint;
+    const endpoint = dbHelpers.getEndpoint(params.endpointId);
 
     const formattedEndpoint = {
       id: endpoint.id,

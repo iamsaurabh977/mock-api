@@ -23,7 +23,7 @@ export async function GET(
     const endpoints = dbHelpers.getEndpoints(params.id);
 
     // Transform database results to match expected format
-    const formattedEndpoints = endpoints.map((endpoint: DbEndpoint) => ({
+    const formattedEndpoints = endpoints.map((endpoint) => ({
       id: endpoint.id,
       projectId: endpoint.project_id,
       method: endpoint.method,
@@ -72,7 +72,7 @@ export async function POST(
     const normalizedPath = path.startsWith('/') ? path : `/${path}`;
 
     // Check if endpoint already exists
-    const existingEndpoint = dbHelpers.getEndpointByPath(params.id, method, normalizedPath) as { id: string } | undefined;
+    const existingEndpoint = dbHelpers.getEndpointByPath(params.id, method, normalizedPath);
 
     if (existingEndpoint) {
       return NextResponse.json(
@@ -93,7 +93,7 @@ export async function POST(
       status_code: statusCode
     });
 
-    const endpoint = dbHelpers.getEndpoint(endpointId) as DbEndpoint;
+    const endpoint = dbHelpers.getEndpoint(endpointId);
 
     const formattedEndpoint = {
       id: endpoint.id,

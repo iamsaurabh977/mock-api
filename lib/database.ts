@@ -1,6 +1,27 @@
 import Database from 'better-sqlite3';
 import path from 'path';
 
+// Define the types for the database entities
+interface DbProject {
+  id: string;
+  name: string;
+  description: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+interface DbEndpoint {
+  id: string;
+  project_id: string;
+  name: string;
+  method: string;
+  path: string;
+  response_data: string | null;
+  status_code: number;
+  created_at: string;
+  updated_at: string;
+}
+
 // Create database file in the project directory
 const dbPath = path.join(process.cwd(), 'mock-api-generator.db');
 const db = new Database(dbPath);
@@ -54,20 +75,20 @@ export const dbHelpers = {
     return stmt.run(project.id, project.name, project.description || null);
   },
 
-  getProjects: () => {
+  getProjects: (): DbProject[] => {
     const stmt = db.prepare('SELECT * FROM projects ORDER BY created_at DESC');
-    return stmt.all();
+    return stmt.all() as DbProject[];
   },
 
-  getProject: (id: string) => {
+  getProject: (id: string): DbProject | undefined => {
     const stmt = db.prepare('SELECT * FROM projects WHERE id = ?');
-    return stmt.get(id);
+    return stmt.get(id) as DbProject | undefined;
   },
 
   updateProject: (id: string, updates: { name?: string; description?: string }) => {
     const fields = [];
     const values = [];
-    
+
     if (updates.name) {
       fields.push('name = ?');
       values.push(updates.name);
@@ -76,12 +97,12 @@ export const dbHelpers = {
       fields.push('description = ?');
       values.push(updates.description);
     }
-    
+
     if (fields.length === 0) return null;
-    
+
     fields.push('updated_at = CURRENT_TIMESTAMP');
     values.push(id);
-    
+
     const stmt = db.prepare(`UPDATE projects SET ${fields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
@@ -116,19 +137,19 @@ export const dbHelpers = {
     );
   },
 
-  getEndpoints: (projectId: string) => {
+  getEndpoints: (projectId: string): DbEndpoint[] => {
     const stmt = db.prepare('SELECT * FROM endpoints WHERE project_id = ? ORDER BY created_at DESC');
-    return stmt.all(projectId);
+    return stmt.all(projectId) as DbEndpoint[];
   },
 
-  getEndpoint: (id: string) => {
+  getEndpoint: (id: string): DbEndpoint | undefined => {
     const stmt = db.prepare('SELECT * FROM endpoints WHERE id = ?');
-    return stmt.get(id);
+    return stmt.get(id) as DbEndpoint | undefined;
   },
 
-  getEndpointByPath: (projectId: string, method: string, path: string) => {
+  getEndpointByPath: (projectId: string, method: string, path: string): DbEndpoint | undefined => {
     const stmt = db.prepare('SELECT * FROM endpoints WHERE project_id = ? AND method = ? AND path = ?');
-    return stmt.get(projectId, method, path);
+    return stmt.get(projectId, method, path) as DbEndpoint | undefined;
   },
 
   updateEndpoint: (id: string, updates: {
@@ -140,19 +161,19 @@ export const dbHelpers = {
   }) => {
     const fields = [];
     const values = [];
-    
+
     Object.entries(updates).forEach(([key, value]) => {
       if (value !== undefined) {
         fields.push(`${key} = ?`);
         values.push(value);
       }
     });
-    
+
     if (fields.length === 0) return null;
-    
+
     fields.push('updated_at = CURRENT_TIMESTAMP');
     values.push(id);
-    
+
     const stmt = db.prepare(`UPDATE endpoints SET ${fields.join(', ')} WHERE id = ?`);
     return stmt.run(...values);
   },
