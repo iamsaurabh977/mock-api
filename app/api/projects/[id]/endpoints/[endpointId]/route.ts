@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbHelpers } from '@/lib/database';
 
+// Define the type for the endpoint returned from the database
+interface DbEndpoint {
+  id: string;
+  project_id: string;
+  name: string;
+  method: string;
+  path: string;
+  response_data: string | null;
+  status_code: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string; endpointId: string } }
@@ -52,7 +65,7 @@ export async function PUT(
       );
     }
 
-    const endpoint = dbHelpers.getEndpoint(params.endpointId);
+    const endpoint = dbHelpers.getEndpoint(params.endpointId) as DbEndpoint;
 
     const formattedEndpoint = {
       id: endpoint.id,

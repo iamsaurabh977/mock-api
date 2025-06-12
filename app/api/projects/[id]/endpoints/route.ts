@@ -2,6 +2,19 @@ import { NextRequest, NextResponse } from 'next/server';
 import { dbHelpers } from '@/lib/database';
 import { nanoid } from 'nanoid';
 
+// Define the type for the endpoint returned from the database
+interface DbEndpoint {
+  id: string;
+  project_id: string;
+  name: string;
+  method: string;
+  path: string;
+  response_data: string | null;
+  status_code: number;
+  created_at: string;
+  updated_at: string;
+}
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -10,7 +23,7 @@ export async function GET(
     const endpoints = dbHelpers.getEndpoints(params.id);
 
     // Transform database results to match expected format
-    const formattedEndpoints = endpoints.map((endpoint: any) => ({
+    const formattedEndpoints = endpoints.map((endpoint: DbEndpoint) => ({
       id: endpoint.id,
       projectId: endpoint.project_id,
       method: endpoint.method,
@@ -80,7 +93,7 @@ export async function POST(
       status_code: statusCode
     });
 
-    const endpoint = dbHelpers.getEndpoint(endpointId);
+    const endpoint = dbHelpers.getEndpoint(endpointId) as DbEndpoint;
 
     const formattedEndpoint = {
       id: endpoint.id,
