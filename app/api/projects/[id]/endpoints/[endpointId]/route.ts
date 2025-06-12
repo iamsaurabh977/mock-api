@@ -72,7 +72,7 @@ export async function PUT(
       projectId: endpoint.project_id,
       method: endpoint.method,
       path: endpoint.path,
-      response: JSON.parse(endpoint.response_data),
+      response: endpoint.response_data ? JSON.parse(endpoint.response_data) : {},
       statusCode: endpoint.status_code,
       headers: undefined,
       createdAt: new Date(endpoint.created_at),
