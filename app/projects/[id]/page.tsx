@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Plus, Globe, Copy } from 'lucide-react';
 import Link from 'next/link';
@@ -20,14 +20,7 @@ export default function ProjectPage() {
   const [editingEndpoint, setEditingEndpoint] = useState<MockEndpoint | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    if (projectId) {
-      fetchProject();
-      fetchEndpoints();
-    }
-  }, [projectId]);
-
-  const fetchProject = async () => {
+  const fetchProject = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}`);
       if (response.ok) {
@@ -40,9 +33,9 @@ export default function ProjectPage() {
     } catch (error) {
       toast.error('Failed to fetch project');
     }
-  };
+  }, [projectId, router]);
 
-  const fetchEndpoints = async () => {
+  const fetchEndpoints = useCallback(async () => {
     try {
       const response = await fetch(`/api/projects/${projectId}/endpoints`);
       if (response.ok) {
@@ -54,7 +47,14 @@ export default function ProjectPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [projectId]);
+
+  useEffect(() => {
+    if (projectId) {
+      fetchProject();
+      fetchEndpoints();
+    }
+  }, [projectId, fetchProject, fetchEndpoints]);
 
   const handleCreateEndpoint = async (data: {
     method: string;

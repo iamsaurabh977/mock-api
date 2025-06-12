@@ -1,6 +1,19 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { dbHelpers } from '@/lib/database';
 
+// Define the type for the endpoint returned from the database
+interface DbEndpoint {
+  id: string;
+  project_id: string;
+  name: string;
+  method: string;
+  path: string;
+  response_data: string | null;
+  status_code: number;
+  created_at: string;
+  updated_at: string;
+}
+
 async function handleMockRequest(
   request: NextRequest,
   { params }: { params: { projectId: string; path: string[] } }
@@ -9,7 +22,7 @@ async function handleMockRequest(
     const method = request.method;
     const path = '/' + (params.path?.join('/') || '');
 
-    const endpoint = dbHelpers.getEndpointByPath(params.projectId, method, path);
+    const endpoint = dbHelpers.getEndpointByPath(params.projectId, method, path) as DbEndpoint | undefined;
 
     if (!endpoint) {
       return NextResponse.json(
@@ -26,7 +39,7 @@ async function handleMockRequest(
       'Content-Type': 'application/json',
       'X-Mock-API': 'true',
       'X-Project-ID': params.projectId,
-      'X-Endpoint-ID': endpoint.id,
+      'X-Endpoint-ID': endpoint.id || '',
     };
 
     const responseData = endpoint.response_data ? JSON.parse(endpoint.response_data) : {};
